@@ -40,7 +40,7 @@ go get github.com/yylego/kratos-zap/zapkratos
 package main
 
 import (
-    "github.com/go-kratos/kratos/v2"
+    "github.com/go-kratos/kratos/v3"
     "github.com/yylego/kratos-zap/zapkratos"
     "github.com/yylego/zaplog"
 )
@@ -110,28 +110,22 @@ func (A *ZapKratos) SubZap() *zaplog.Zap
 Creates child Zap with calling module info.
 
 ```go
-func (A *ZapKratos) GetLogger(msgCaption string) log.Logger
+func (A *ZapKratos) GetLogger(msgCaption string) *slog.Logger
 ```
 
-Creates Kratos log.Logger with the given caption.
+Builds a \*slog.Logger with the given caption.
 
 ```go
-func (A *ZapKratos) NewLogger(msgCaption string) log.Logger
+func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger
 ```
 
-Same as GetLogger, creates the Kratos log.Logger.
+Same as GetLogger, builds the \*slog.Logger.
 
 ```go
-func (A *ZapKratos) GetHelper(msgCaption string) *log.Helper
+func (A *ZapKratos) GetSlogLogger(msgCaption string) *slog.Logger
 ```
 
-Creates Kratos log.Helper with the given caption.
-
-```go
-func (A *ZapKratos) NewHelper(msgCaption string) *log.Helper
-```
-
-Same as GetHelper, creates the Kratos log.Helper.
+Explicit-named accessor mirroring the NewSlogLogger package func.
 
 ### Options
 
@@ -159,38 +153,36 @@ func (T *Options) WithModuleKeyName(moduleKeyName string) *Options
 
 Sets custom module field name in a chainable fashion.
 
-### LogImp
+### NewSlogLogger
 
-Implementation that implements the Kratos log.Logger using Zap.
-
-```go
-type LogImp struct {
-    // Contains filtered or unexported fields
-}
-```
+Builds a \*slog.Logger backed by Zap via the official zapslog handler.
 
 #### Constructor
 
 ```go
-func NewLogImp(zapLog *zap.Logger, msgCaption string) log.Logger
+func NewSlogLogger(zapLog *zap.Logger, msgCaption string) *slog.Logger
 ```
 
-Creates LogImp wrapping the given Zap instance.
+Bridges the given Zap to stdlib slog, tagging each entry with the caption.
+
 ## Dependencies
 
-- `github.com/go-kratos/kratos/v2` - Kratos microservice framework
 - `go.uber.org/zap` - Uber Zap structured logging
+- `go.uber.org/zap/exp/zapslog` - Official Zap-to-slog bridge
 - `github.com/yylego/zaplog` - Zap management package
 - `github.com/yylego/runpath` - Runtime path utilities
-- `github.com/yylego/erero` - Error handling utilities
+
+Targets the Kratos v3 framework: the returned \*slog.Logger plugs straight into `kratos.Logger(...)`.
 
 ## Related Projects
 
 **Frameworks:**
+
 - [Kratos](https://github.com/go-kratos/kratos) - Go microservice framework
 - [Zap](https://github.com/uber-go/zap) - Uber's structured logging
 
 **kratos-zap Ecosystem:**
+
 - [kratos-zap](https://github.com/yylego/kratos-zap) - This project
 - [kratos-zap-demos](https://github.com/yylego/kratos-zap-demos) - Demo projects
 - [kratos-zapzh](https://github.com/yylego/kratos-zapzh) - Chinese version with Chinese function names

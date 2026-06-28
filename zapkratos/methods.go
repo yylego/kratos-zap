@@ -1,43 +1,32 @@
 package zapkratos
 
-import "github.com/go-kratos/kratos/v2/log"
+import "log/slog"
 
-// GetLogger creates Kratos log.Logger with given message caption
-// Wraps underlying Zap and returns the created log instance
+// GetLogger builds a *slog.Logger with the given caption
+// Wraps the underlying Zap and returns the created logger
 //
-// GetLogger 使用给定的消息说明创建 Kratos log.Logger
+// GetLogger 使用给定的消息说明构造 *slog.Logger
 // 包装底层 Zap 日志器并返回实例
-func (A *ZapKratos) GetLogger(msgCaption string) log.Logger {
-	return NewLogImp(A.GetZap().LOG, msgCaption)
+func (A *ZapKratos) GetLogger(msgCaption string) *slog.Logger {
+	return NewSlogLogger(A.GetZap().LOG, msgCaption)
 }
 
-// NewLogger creates Kratos log.Logger with given message caption
-// Wraps underlying Zap and returns the created log instance
+// NewLogger builds a *slog.Logger with the given caption
+// Wraps the underlying Zap and returns the created logger
 // Note: Same as GetLogger, provided to match naming patterns
 //
-// NewLogger 使用给定的消息说明创建 Kratos log.Logger
+// NewLogger 使用给定的消息说明构造 *slog.Logger
 // 包装底层 Zap 日志器并返回实例
 // 注意：与 GetLogger 相同，提供以匹配命名模式
-func (A *ZapKratos) NewLogger(msgCaption string) log.Logger {
-	return NewLogImp(A.GetZap().LOG, msgCaption)
+func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger {
+	return NewSlogLogger(A.GetZap().LOG, msgCaption)
 }
 
-// GetHelper creates Kratos log.Helper with given message caption
-// Provides convenient methods and returns the created Helper instance
+// GetSlogLogger builds a *slog.Logger with the given caption
+// Explicit-named accessor mirroring the NewSlogLogger package func
 //
-// GetHelper 使用给定的消息说明创建 Kratos log.Helper
-// 提供便捷日志方法并返回实例
-func (A *ZapKratos) GetHelper(msgCaption string) *log.Helper {
-	return log.NewHelper(A.GetLogger(msgCaption))
-}
-
-// NewHelper creates Kratos log.Helper with given message caption
-// Provides convenient methods and returns the created Helper instance
-// Note: Same as GetHelper, provided to match naming patterns
-//
-// NewHelper 使用给定的消息说明创建 Kratos log.Helper
-// 提供便捷日志方法并返回实例
-// 注意：与 GetHelper 相同，提供以匹配命名模式
-func (A *ZapKratos) NewHelper(msgCaption string) *log.Helper {
-	return log.NewHelper(A.GetLogger(msgCaption))
+// GetSlogLogger 使用给定的消息说明构造 *slog.Logger
+// 跟包级 NewSlogLogger 对应的显式命名访问方法
+func (A *ZapKratos) GetSlogLogger(msgCaption string) *slog.Logger {
+	return NewSlogLogger(A.GetZap().LOG, msgCaption)
 }

@@ -1,9 +1,9 @@
-// Package zapkratos provides Zap logger integration with Kratos microservice framework
-// Implements adapter pattern to bridge Uber Zap with the Kratos log.Logger interface
+// Package zapkratos provides Zap logger integration for the Kratos v3 microservice framework
+// Bridges Uber Zap to the stdlib slog via the official zapslog handler, returning a *slog.Logger
 // Enables structured logging with module tracking and flexible configuration
 //
-// zapkratos 包为 Kratos 微服务框架提供 Zap 日志集成
-// 实现适配器模式，将 Uber Zap 桥接到 Kratos log.Logger 接口
+// zapkratos 包为 Kratos v3 微服务框架提供 Zap 日志集成
+// 通过官方 zapslog handler 把 Uber Zap 桥接到标准库 slog，返回 *slog.Logger
 // 支持结构化日志记录、模块追踪和灵活的配置选项
 package zapkratos
 
@@ -55,10 +55,10 @@ type ZapKratos struct {
 }
 
 // NewZapKratos creates ZapKratos with given Zap logger and config
-// Returns new ZapKratos that can provide Kratos log.Logger instances
+// Returns new ZapKratos that can provide *slog.Logger instances for Kratos v3
 //
 // NewZapKratos 使用给定的 Zap 日志器和选项创建 ZapKratos 实例
-// 返回准备好提供 Kratos log.Logger 实例的新 ZapKratos
+// 返回准备好为 Kratos v3 提供 *slog.Logger 实例的新 ZapKratos
 func NewZapKratos(zap *zaplog.Zap, options *Options) *ZapKratos {
 	return &ZapKratos{
 		zap:     zap,

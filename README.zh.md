@@ -40,7 +40,7 @@ go get github.com/yylego/kratos-zap/zapkratos
 package main
 
 import (
-    "github.com/go-kratos/kratos/v2"
+    "github.com/go-kratos/kratos/v3"
     "github.com/yylego/kratos-zap/zapkratos"
     "github.com/yylego/zaplog"
 )
@@ -110,28 +110,22 @@ func (A *ZapKratos) SubZap() *zaplog.Zap
 创建带有调用模块信息的子 Zap。
 
 ```go
-func (A *ZapKratos) GetLogger(msgCaption string) log.Logger
+func (A *ZapKratos) GetLogger(msgCaption string) *slog.Logger
 ```
 
-创建带消息说明的 Kratos log.Logger。
+使用给定的消息说明构造 \*slog.Logger。
 
 ```go
-func (A *ZapKratos) NewLogger(msgCaption string) log.Logger
+func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger
 ```
 
-与 GetLogger 相同，创建 Kratos log.Logger。
+与 GetLogger 相同，构造 \*slog.Logger。
 
 ```go
-func (A *ZapKratos) GetHelper(msgCaption string) *log.Helper
+func (A *ZapKratos) GetSlogLogger(msgCaption string) *slog.Logger
 ```
 
-创建带消息说明的 Kratos log.Helper。
-
-```go
-func (A *ZapKratos) NewHelper(msgCaption string) *log.Helper
-```
-
-与 GetHelper 相同，创建 Kratos log.Helper。
+跟包级 NewSlogLogger 对应的显式命名访问方法。
 
 ### Options
 
@@ -159,38 +153,36 @@ func (T *Options) WithModuleKeyName(moduleKeyName string) *Options
 
 以可链式调用的方式设置自定义模块字段键名。
 
-### LogImp
+### NewSlogLogger
 
-使用 Zap 实现 Kratos log.Logger 接口的适配器。
-
-```go
-type LogImp struct {
-    // 包含已过滤或未导出的字段
-}
-```
+通过官方 zapslog handler 基于 Zap 构造 \*slog.Logger。
 
 #### 构造函数
 
 ```go
-func NewLogImp(zapLog *zap.Logger, msgCaption string) log.Logger
+func NewSlogLogger(zapLog *zap.Logger, msgCaption string) *slog.Logger
 ```
 
-创建包装给定 Zap 的 LogImp 适配器。
+把给定 Zap 桥接到标准库 slog，并给每条日志打上 caption 标记。
+
 ## 依赖项
 
-- `github.com/go-kratos/kratos/v2` - Kratos 微服务框架
 - `go.uber.org/zap` - Uber Zap 结构化日志
+- `go.uber.org/zap/exp/zapslog` - 官方 Zap 转 slog 桥接
 - `github.com/yylego/zaplog` - Zap 管理包
 - `github.com/yylego/runpath` - 运行时路径工具
-- `github.com/yylego/erero` - 错误处理工具
+
+面向 Kratos v3 框架：返回的 \*slog.Logger 可直接传给 `kratos.Logger(...)`。
 
 ## 相关项目
 
 **框架：**
+
 - [Kratos](https://github.com/go-kratos/kratos) - Go 微服务框架
 - [Zap](https://github.com/uber-go/zap) - Uber 的结构化日志
 
 **kratos-zap 生态：**
+
 - [kratos-zap](https://github.com/yylego/kratos-zap) - 本项目
 - [kratos-zap-demos](https://github.com/yylego/kratos-zap-demos) - 演示项目
 - [kratos-zapzh](https://github.com/yylego/kratos-zapzh) - 使用中文函数名的中文版本

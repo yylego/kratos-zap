@@ -6,30 +6,41 @@ import (
 	"github.com/yylego/zaplog"
 )
 
-// TestZapKratos_GetHelper tests getting log helper from ZapKratos
-// Verifies GetHelper creates working helper with both Info and Infow
+// TestZapKratos_GetLogger tests getting a *slog.Logger from ZapKratos
+// Verifies the logger writes structured data without panic
 //
-// TestZapKratos_GetHelper 测试从 ZapKratos 实例获取日志助手
-// 验证 GetHelper 创建的助手具有 Info 和 Infow 方法且工作正常
-func TestZapKratos_GetHelper(t *testing.T) {
+// TestZapKratos_GetLogger 测试从 ZapKratos 实例获取 *slog.Logger
+// 验证返回的 logger 能正常写结构化数据而不 panic
+func TestZapKratos_GetLogger(t *testing.T) {
 	zapKratos := NewZapKratos(zaplog.LOGGER, NewOptions())
 
-	slog := zapKratos.GetHelper("TEST-GET-HELPER")
+	applog := zapKratos.GetLogger("TEST-GET-LOGGER")
 
-	slog.Info("woca", "[a]", "[b]", "[c]")
-	slog.Infow("k", "v", "k1", "v2")
+	applog.Info("test message", "k", "v", "k1", "v2")
 }
 
-// TestZapKratos_NewHelper tests creating new log helper from ZapKratos
-// Verifies NewHelper creates working helper with given caption
+// TestZapKratos_NewLogger tests creating a *slog.Logger from ZapKratos
+// Verifies the logger built with the given caption works
 //
-// TestZapKratos_NewHelper 测试从 ZapKratos 实例创建新日志助手
-// 验证 NewHelper 使用消息说明创建工作正常的助手
-func TestZapKratos_NewHelper(t *testing.T) {
+// TestZapKratos_NewLogger 测试从 ZapKratos 实例创建 *slog.Logger
+// 验证使用消息说明构造的 logger 工作正常
+func TestZapKratos_NewLogger(t *testing.T) {
 	zapKratos := NewZapKratos(zaplog.LOGGER, NewOptions())
 
-	slog := zapKratos.NewHelper("TEST-NEW-HELPER")
+	applog := zapKratos.NewLogger("TEST-NEW-LOGGER")
 
-	slog.Info("test-message")
-	slog.Infow("test", "message")
+	applog.Info("test message", "stage", "demo")
+}
+
+// TestZapKratos_GetSlogLogger tests the explicit-named *slog.Logger accessor
+// Verifies the logger built with the given caption works
+//
+// TestZapKratos_GetSlogLogger 测试显式命名的 *slog.Logger 访问方法
+// 验证使用消息说明构造的 logger 工作正常
+func TestZapKratos_GetSlogLogger(t *testing.T) {
+	zapKratos := NewZapKratos(zaplog.LOGGER, NewOptions())
+
+	applog := zapKratos.GetSlogLogger("TEST-GET-SLOG-LOGGER")
+
+	applog.Info("test message", "stage", "demo")
 }
