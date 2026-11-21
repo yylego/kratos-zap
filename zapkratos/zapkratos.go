@@ -9,8 +9,9 @@ package zapkratos
 
 import (
 	"path/filepath"
+	"runtime"
 
-	"github.com/yylego/runpath"
+	"github.com/pkg/errors"
 	"github.com/yylego/zaplog"
 )
 
@@ -66,22 +67,28 @@ func NewZapKratos(zap *zaplog.Zap, options *Options) *ZapKratos {
 	}
 }
 
-// GetZap returns the underlying Zap logging instance
+// Zap returns the underlying Zap logging instance
 // Provides access to raw Zap as needed
 //
-// GetZap 返回底层的 Zap 日志器实例
+// Zap 返回底层的 Zap 日志器实例
 // 在需要时提供对原始 Zap 日志器的访问
-func (A *ZapKratos) GetZap() *zaplog.Zap {
+func (A *ZapKratos) Zap() *zaplog.Zap {
 	return A.zap
 }
 
 // SubZap creates child Zap with calling module information
 // Auto adds module field containing file basename from calling context
+// Takes the file name alone, so it works with go build -trimpath too
 // Returns new Zap with module context included
 //
 // SubZap 创建带有调用者模块信息的子 Zap 日志器
-// 使用 runpath 自动添加包含调用者文件基本名的模块字段
+// 自动添加包含调用者文件基本名的模块字段
+// 只取文件名，所以用 go build -trimpath 编译时也能正常工作
 // 返回附加了模块上下文的新 Zap 实例
 func (A *ZapKratos) SubZap() *zaplog.Zap {
-	return A.GetZap().NewZap(A.options.ModuleKeyName, filepath.Base(runpath.Skip(1)))
+	_, path, _, ok := runtime.Caller(1)
+	if !ok {
+		panic(errors.New("runtime.Caller(1) fails in SubZap"))
+	}
+	return A.Zap().NewZap(A.options.ModuleKeyName, filepath.Base(path))
 }

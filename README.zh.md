@@ -1,9 +1,13 @@
+<!-- TEMPLATE (ZH) BEGIN: BADGES -->
+
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/yylego/kratos-zap/release.yml?branch=main&label=BUILD)](https://github.com/yylego/kratos-zap/actions/workflows/release.yml?query=branch%3Amain)
 [![GoDoc](https://pkg.go.dev/badge/github.com/yylego/kratos-zap)](https://pkg.go.dev/github.com/yylego/kratos-zap)
 [![Coverage Status](https://img.shields.io/coveralls/github/yylego/kratos-zap/main.svg)](https://coveralls.io/github/yylego/kratos-zap?branch=main)
-[![Supported Go Versions](https://img.shields.io/badge/Go-1.25+-lightgrey.svg)](https://go.dev/)
+[![Supported Go Versions](https://img.shields.io/badge/Go-1.25%2B-lightgrey.svg)](https://go.dev/)
 [![GitHub Release](https://img.shields.io/github/release/yylego/kratos-zap.svg)](https://github.com/yylego/kratos-zap/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yylego/kratos-zap)](https://goreportcard.com/report/github.com/yylego/kratos-zap)
+
+<!-- TEMPLATE (ZH) CLOSE: BADGES -->
 
 # kratos-zap
 
@@ -17,7 +21,7 @@
 
 [ENGLISH README](README.md)
 
-<!-- TEMPLATE (ZH) END: LANGUAGE NAVIGATION -->
+<!-- TEMPLATE (ZH) CLOSE: LANGUAGE NAVIGATION -->
 
 ## 主要特性
 
@@ -43,6 +47,7 @@ import (
     "github.com/go-kratos/kratos/v3"
     "github.com/yylego/kratos-zap/zapkratos"
     "github.com/yylego/zaplog"
+    "go.uber.org/zap"
 )
 
 func main() {
@@ -70,10 +75,10 @@ func main() {
 
 ## 完整示例
 
-查看 [kratos-zap-demos](https://github.com/yylego/kratos-zap-demos) 了解实际 Kratos 项目中的完整集成：
+查看 [kratos-examples/zap](https://github.com/kratos-examples/zap) 了解实际 Kratos 项目中的完整集成：
 
-- **[demo1kratos](https://github.com/yylego/kratos-zap-demos/tree/main/demo1kratos)** - HTTP 和 gRPC 基础集成
-- **[demo2kratos](https://github.com/yylego/kratos-zap-demos/tree/main/demo2kratos)** - Wire 依赖注入高级用法
+- **[demo1kratos](https://github.com/kratos-examples/zap/tree/main/demo1kratos)** - HTTP 和 gRPC 基础集成
+- **[demo2kratos](https://github.com/kratos-examples/zap/tree/main/demo2kratos)** - Wire 依赖注入高级用法
 
 ## API 参考
 
@@ -98,7 +103,7 @@ func NewZapKratos(zap *zaplog.Zap, options *Options) *ZapKratos
 #### 方法
 
 ```go
-func (A *ZapKratos) GetZap() *zaplog.Zap
+func (A *ZapKratos) Zap() *zaplog.Zap
 ```
 
 返回底层的 Zap 实例。
@@ -110,22 +115,10 @@ func (A *ZapKratos) SubZap() *zaplog.Zap
 创建带有调用模块信息的子 Zap。
 
 ```go
-func (A *ZapKratos) GetLogger(msgCaption string) *slog.Logger
-```
-
-使用给定的消息说明构造 \*slog.Logger。
-
-```go
 func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger
 ```
 
-与 GetLogger 相同，构造 \*slog.Logger。
-
-```go
-func (A *ZapKratos) GetSlogLogger(msgCaption string) *slog.Logger
-```
-
-跟包级 NewSlogLogger 对应的显式命名访问方法。
+使用给定的消息说明构造 \*slog.Logger，传给 `kratos.Logger(...)` 使用。每次调用都基于底层 Zap 新建一个。
 
 ### Options
 
@@ -163,14 +156,13 @@ func (T *Options) WithModuleKeyName(moduleKeyName string) *Options
 func NewSlogLogger(zapLog *zap.Logger, msgCaption string) *slog.Logger
 ```
 
-把给定 Zap 桥接到标准库 slog，并给每条日志打上 caption 标记。
+把给定 Zap 桥接到标准库 slog，并给每条日志打上 caption 标记。zapslog 只拿到 Zap 的 core、拿不到 Zap 上的选项，所以每条日志的调用位置和 ERROR 起的调用栈在桥接这一层重新开启。
 
 ## 依赖项
 
 - `go.uber.org/zap` - Uber Zap 结构化日志
 - `go.uber.org/zap/exp/zapslog` - 官方 Zap 转 slog 桥接
 - `github.com/yylego/zaplog` - Zap 管理包
-- `github.com/yylego/runpath` - 运行时路径工具
 
 面向 Kratos v3 框架：返回的 \*slog.Logger 可直接传给 `kratos.Logger(...)`。
 
@@ -184,28 +176,28 @@ func NewSlogLogger(zapLog *zap.Logger, msgCaption string) *slog.Logger
 **kratos-zap 生态：**
 
 - [kratos-zap](https://github.com/yylego/kratos-zap) - 本项目
-- [kratos-zap-demos](https://github.com/yylego/kratos-zap-demos) - 演示项目
+- [kratos-examples/zap](https://github.com/kratos-examples/zap) - 演示项目
 - [kratos-zapzh](https://github.com/yylego/kratos-zapzh) - 使用中文函数名的中文版本
-- [kratos-zapzh-demos](https://github.com/yylego/kratos-zapzh-demos) - 中文版演示项目
+- [kratos-examples/zapzh](https://github.com/kratos-examples/zapzh) - 中文版演示项目
 
 <!-- TEMPLATE (ZH) BEGIN: STANDARD PROJECT FOOTER -->
-<!-- VERSION 2025-09-26 07:39:27.188023 +0000 UTC -->
+<!-- VERSION 2025-11-25 03:52:28.131064 +0000 UTC -->
 
-## 📄 许可证
+## 📄 许可证类型
 
-MIT License - 查看 [LICENSE](LICENSE) 文件
+MIT 许可证 - 详见 [LICENSE](LICENSE)。
 
 ---
 
-## 💬 联系反馈
+## 💬 联系与反馈
 
-**问题和反馈：**
+非常欢迎贡献代码！报告 BUG、建议功能、贡献代码：
 
-- 🐛 **Bug 报告？** 打开 issue 并描述问题和复现步骤
-- ✨ **功能想法？** 打开 issue 讨论实现方案
-- 📖 **文档疑惑？** 报告问题，帮助我们改进文档
+- 🐛 **问题报告？** 在 GitHub 上提交问题并附上重现步骤
+- 💡 **新颖思路？** 创建 issue 讨论
+- 📖 **文档疑惑？** 报告问题，帮助我们完善文档
 - 🚀 **需要功能？** 分享使用场景，帮助理解需求
-- ⚡ **性能瓶颈？** 报告慢操作，帮助我们优化性能
+- ⚡ **性能瓶颈？** 报告慢操作，协助解决性能问题
 - 🔧 **配置困扰？** 询问复杂设置的相关问题
 - 📢 **关注进展？** 关注仓库以获取新版本和功能
 - 🌟 **成功案例？** 分享这个包如何改善工作流程
@@ -218,38 +210,32 @@ MIT License - 查看 [LICENSE](LICENSE) 文件
 新代码贡献，请遵循此流程：
 
 1. **Fork**：在 GitHub 上 Fork 仓库（使用网页界面）
-2. **克隆**：克隆 Fork 的项目（`git clone https://github.com/yourname/kratos-zap.git`）
-3. **导航**：进入克隆的项目（`cd kratos-zap`）
+2. **克隆**：克隆 Fork 的项目（`git clone https://github.com/yourname/repo-name.git`）
+3. **导航**：进入克隆的项目（`cd repo-name`）
 4. **分支**：创建功能分支（`git checkout -b feature/xxx`）
 5. **编码**：实现您的更改并编写全面的测试
 6. **测试**：（Golang 项目）确保测试通过（`go test ./...`）并遵循 Go 代码风格约定
-7. **文档**：为面向用户的更改更新文档，并使用有意义的提交消息
+7. **文档**：面向用户的更改需要更新文档
 8. **暂存**：暂存更改（`git add .`）
 9. **提交**：提交更改（`git commit -m "Add feature xxx"`）确保向后兼容的代码
 10. **推送**：推送到分支（`git push origin feature/xxx`）
-11. **PR**：在 GitHub 上打开 Merge Request（在 GitHub 网页上）并提供详细说明
+11. **PR**：在 GitHub 上打开 Merge Request（在 GitHub 网页上）并提供详细描述
 
 请确保测试通过并包含相关的文档更新。
 
 ---
 
-## 🌟 支持
+## 🌟 项目支持
 
-欢迎通过提交 Merge Request 和报告 Issue 为此项目做贡献。
+非常欢迎通过提交 Merge Request 和报告问题来贡献此项目。
 
 **项目支持：**
 
-- ⭐ **给 GitHub 星标** 如果这个项目帮助了你
-- 🤝 **分享给队友** 和（golang）编程朋友
-- 📝 **写技术博客** 关于开发工具和工作流程 - 我们提供内容写作支持
-- 🌟 **加入生态系统** - 致力于支持开源和（golang）开发场景
+- ⭐ **给予星标**如果项目对您有帮助
+- 🤝 **分享项目**给团队成员和（golang）编程朋友
+- 📝 **撰写博客**关于开发工具和工作流程 - 我们提供写作支持
+- 🌟 **加入生态** - 致力于支持开源和（golang）开发场景
 
-**用这个包快乐编程！** 🎉🎉🎉
+**祝你用这个包编程愉快！** 🎉🎉🎉
 
-<!-- TEMPLATE (ZH) END: STANDARD PROJECT FOOTER -->
-
----
-
-## GitHub 标星点赞
-
-[![标星点赞](https://starchart.cc/yylego/kratos-zap.svg?variant=adaptive)](https://starchart.cc/yylego/kratos-zap)
+<!-- TEMPLATE (ZH) CLOSE: STANDARD PROJECT FOOTER -->

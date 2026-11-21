@@ -3,33 +3,52 @@ package zapkratos
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	"github.com/yylego/zaplog"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest/observer"
 )
 
-// TestNewZapKratos tests creating ZapKratos and getting sub logging
-// Verifies basic initialization and that sub logging can write log messages
-//
-// TestNewZapKratos 测试创建 ZapKratos 实例和获取子日志器
-// 验证基本初始化工作正常且子日志器可以写入日志
-func TestNewZapKratos(t *testing.T) {
-	zapKratos := NewZapKratos(zaplog.LOGGER, NewOptions())
-
-	subLog := zapKratos.SubZap()
-
-	subLog.LOG.Info("abc")
-	subLog.SUG.Info("xyz")
+// TestNewOptions checks the default module field name is "module"
+// TestNewOptions 检查默认的模块键名是 "module"
+func TestNewOptions(t *testing.T) {
+	require.Equal(t, &Options{ModuleKeyName: "module"}, NewOptions())
 }
 
-// TestOptions_WithModuleKeyName tests custom module key name configuration
-// Verifies WithModuleKeyName sets custom field name and sub logging works as expected
-//
-// TestOptions_WithModuleKeyName 测试自定义模块键名配置
-// 验证 WithModuleKeyName 设置自定义字段名且子日志器工作正常
+// TestOptions_WithModuleKeyName checks the sub Zap writes the file name as the custom field name
+// TestOptions_WithModuleKeyName 检查子 Zap 用自定义的键名写出文件名
 func TestOptions_WithModuleKeyName(t *testing.T) {
-	zapKratos := NewZapKratos(zaplog.LOGGER, NewOptions().WithModuleKeyName("module"))
+	core, logs := observer.New(zapcore.DebugLevel)
+	zapKratos := NewZapKratos(zaplog.NewZap(zap.New(core)), NewOptions().WithModuleKeyName("source"))
 
-	subLog := zapKratos.SubZap()
+	zapKratos.SubZap().LOG.Info("abc")
 
-	subLog.LOG.Info("abc")
-	subLog.SUG.Info("xyz")
+	entries := logs.TakeAll()
+	require.Len(t, entries, 1)
+	require.Equal(t, map[string]any{"source": "zapkratos_test.go"}, entries[0].ContextMap())
+}
+
+// TestNewZapKratos checks Zap gives back the Zap passed in
+// TestNewZapKratos 检查 Zap 返回传入的 Zap
+func TestNewZapKratos(t *testing.T) {
+	zapKratos := NewZapKratos(zaplog.LOGGER, NewOptions())
+	require.Same(t, zaplog.LOGGER, zapKratos.Zap())
+}
+
+// TestZapKratos_SubZap checks the sub Zap adds the file name of the code that calls it, LOG and SUG alike
+// TestZapKratos_SubZap 检查子 Zap 加上调用方的文件名，LOG 和 SUG 都一样
+func TestZapKratos_SubZap(t *testing.T) {
+	core, logs := observer.New(zapcore.DebugLevel)
+	zapKratos := NewZapKratos(zaplog.NewZap(zap.New(core)), NewOptions())
+
+	sub := zapKratos.SubZap()
+	sub.LOG.Info("abc")
+	sub.SUG.Info("xyz")
+
+	entries := logs.TakeAll()
+	require.Len(t, entries, 2)
+	for _, item := range entries {
+		require.Equal(t, map[string]any{"module": "zapkratos_test.go"}, item.ContextMap())
+	}
 }

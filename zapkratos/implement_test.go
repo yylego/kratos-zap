@@ -3,17 +3,31 @@ package zapkratos
 import (
 	"testing"
 
-	"github.com/yylego/zaplog"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"go.uber.org/zap/zaptest/observer"
 )
 
-// TestNewSlogLogger tests building a *slog.Logger from the given Zap
-// Verifies the bridged logger writes key-value data without panic
-//
-// TestNewSlogLogger 测试基于给定 Zap 构造 *slog.Logger
-// 验证桥接出的 logger 能正常写键值对而不 panic
+// TestNewSlogLogger checks the slog entries reach Zap with the caption, the pairs and the code position, and ERROR comes with a stack trace
+// TestNewSlogLogger 检查 slog 日志带着 caption、键值对和调用位置写进 Zap，ERROR 日志附带调用栈
 func TestNewSlogLogger(t *testing.T) {
-	applog := NewSlogLogger(zaplog.LOG, "TEST-NEW-LOG-CAPTION")
+	core, logs := observer.New(zapcore.DebugLevel)
+	slogLog := NewSlogLogger(zap.New(core), "TEST-CAPTION")
 
-	applog.Info("test message", "k", "v", "k1", "v2")
-	applog.Debug("debug message", "stage", "demo")
+	slogLog.Info("abc", "k", "v")
+	slogLog.Error("xyz")
+
+	entries := logs.TakeAll()
+	require.Len(t, entries, 2)
+
+	require.Equal(t, zapcore.InfoLevel, entries[0].Level)
+	require.Equal(t, "abc", entries[0].Message)
+	require.Equal(t, map[string]any{"caption": "TEST-CAPTION", "k": "v"}, entries[0].ContextMap())
+	require.Equal(t, "github.com/yylego/kratos-zap/zapkratos.TestNewSlogLogger", entries[0].Caller.Function)
+	require.Empty(t, entries[0].Stack)
+
+	require.Equal(t, zapcore.ErrorLevel, entries[1].Level)
+	require.Equal(t, "xyz", entries[1].Message)
+	require.NotEmpty(t, entries[1].Stack)
 }

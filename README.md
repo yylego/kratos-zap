@@ -1,9 +1,13 @@
+<!-- TEMPLATE (EN) BEGIN: BADGES -->
+
 [![GitHub Workflow Status (branch)](https://img.shields.io/github/actions/workflow/status/yylego/kratos-zap/release.yml?branch=main&label=BUILD)](https://github.com/yylego/kratos-zap/actions/workflows/release.yml?query=branch%3Amain)
 [![GoDoc](https://pkg.go.dev/badge/github.com/yylego/kratos-zap)](https://pkg.go.dev/github.com/yylego/kratos-zap)
 [![Coverage Status](https://img.shields.io/coveralls/github/yylego/kratos-zap/main.svg)](https://coveralls.io/github/yylego/kratos-zap?branch=main)
-[![Supported Go Versions](https://img.shields.io/badge/Go-1.25+-lightgrey.svg)](https://go.dev/)
+[![Supported Go Versions](https://img.shields.io/badge/Go-1.25%2B-lightgrey.svg)](https://go.dev/)
 [![GitHub Release](https://img.shields.io/github/release/yylego/kratos-zap.svg)](https://github.com/yylego/kratos-zap/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/yylego/kratos-zap)](https://goreportcard.com/report/github.com/yylego/kratos-zap)
+
+<!-- TEMPLATE (EN) CLOSE: BADGES -->
 
 # kratos-zap
 
@@ -17,7 +21,7 @@ Zap integration that connects Uber Zap with Kratos microservice framework, provi
 
 [中文说明](README.zh.md)
 
-<!-- TEMPLATE (EN) END: LANGUAGE NAVIGATION -->
+<!-- TEMPLATE (EN) CLOSE: LANGUAGE NAVIGATION -->
 
 ## Main Features
 
@@ -43,6 +47,7 @@ import (
     "github.com/go-kratos/kratos/v3"
     "github.com/yylego/kratos-zap/zapkratos"
     "github.com/yylego/zaplog"
+    "go.uber.org/zap"
 )
 
 func main() {
@@ -70,10 +75,10 @@ func main() {
 
 ## Complete Examples
 
-See [kratos-zap-demos](https://github.com/yylego/kratos-zap-demos) to view complete integration in actual Kratos projects:
+See [kratos-examples/zap](https://github.com/kratos-examples/zap) to view complete integration inside Kratos projects:
 
-- **[demo1kratos](https://github.com/yylego/kratos-zap-demos/tree/main/demo1kratos)** - Basic integration with HTTP and gRPC
-- **[demo2kratos](https://github.com/yylego/kratos-zap-demos/tree/main/demo2kratos)** - Advanced usage with Wire DI
+- **[demo1kratos](https://github.com/kratos-examples/zap/tree/main/demo1kratos)** - Basic integration with HTTP and gRPC
+- **[demo2kratos](https://github.com/kratos-examples/zap/tree/main/demo2kratos)** - Advanced usage with Wire DI
 
 ## API Reference
 
@@ -98,7 +103,7 @@ Creates new ZapKratos instance with the given Zap and options.
 #### Methods
 
 ```go
-func (A *ZapKratos) GetZap() *zaplog.Zap
+func (A *ZapKratos) Zap() *zaplog.Zap
 ```
 
 Returns the underlying Zap instance.
@@ -110,22 +115,10 @@ func (A *ZapKratos) SubZap() *zaplog.Zap
 Creates child Zap with calling module info.
 
 ```go
-func (A *ZapKratos) GetLogger(msgCaption string) *slog.Logger
-```
-
-Builds a \*slog.Logger with the given caption.
-
-```go
 func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger
 ```
 
-Same as GetLogger, builds the \*slog.Logger.
-
-```go
-func (A *ZapKratos) GetSlogLogger(msgCaption string) *slog.Logger
-```
-
-Explicit-named accessor mirroring the NewSlogLogger package func.
+Builds a \*slog.Logger with the given caption, pass it to `kratos.Logger(...)`. Each invocation builds a new one on top of the underlying Zap.
 
 ### Options
 
@@ -163,14 +156,13 @@ Builds a \*slog.Logger backed by Zap via the official zapslog handler.
 func NewSlogLogger(zapLog *zap.Logger, msgCaption string) *slog.Logger
 ```
 
-Bridges the given Zap to stdlib slog, tagging each entry with the caption.
+Bridges the given Zap to stdlib slog, tagging each log with the caption. zapslog takes the Zap core alone, so the code position of each log and the stack trace from ERROR are switched on in the bridge itself.
 
 ## Dependencies
 
 - `go.uber.org/zap` - Uber Zap structured logging
 - `go.uber.org/zap/exp/zapslog` - Official Zap-to-slog bridge
 - `github.com/yylego/zaplog` - Zap management package
-- `github.com/yylego/runpath` - Runtime path utilities
 
 Targets the Kratos v3 framework: the returned \*slog.Logger plugs straight into `kratos.Logger(...)`.
 
@@ -184,25 +176,25 @@ Targets the Kratos v3 framework: the returned \*slog.Logger plugs straight into 
 **kratos-zap Ecosystem:**
 
 - [kratos-zap](https://github.com/yylego/kratos-zap) - This project
-- [kratos-zap-demos](https://github.com/yylego/kratos-zap-demos) - Demo projects
+- [kratos-examples/zap](https://github.com/kratos-examples/zap) - Demo projects
 - [kratos-zapzh](https://github.com/yylego/kratos-zapzh) - Chinese version with Chinese function names
-- [kratos-zapzh-demos](https://github.com/yylego/kratos-zapzh-demos) - Chinese version demos
+- [kratos-examples/zapzh](https://github.com/kratos-examples/zapzh) - Chinese version demos
 
 <!-- TEMPLATE (EN) BEGIN: STANDARD PROJECT FOOTER -->
-<!-- VERSION 2025-09-26 07:39:27.188023 +0000 UTC -->
+<!-- VERSION 2025-11-25 03:52:28.131064 +0000 UTC -->
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file
+MIT License - see [LICENSE](LICENSE).
 
 ---
 
 ## 💬 Contact & Feedback
 
-**Issues & Feedback:**
+Contributions are welcome! Report bugs, suggest features, and contribute code:
 
-- 🐛 **Bug reports?** Open an issue and describe the problem with reproduction steps
-- ✨ **Feature ideas?** Open an issue to discuss the implementation approach
+- 🐛 **Mistake reports?** Open an issue on GitHub with reproduction steps
+- 💡 **Fresh ideas?** Create an issue to discuss
 - 📖 **Documentation confusing?** Report it so we can improve
 - 🚀 **Need new features?** Share the use cases to help us understand requirements
 - ⚡ **Performance issue?** Help us optimize through reporting slow operations
@@ -218,12 +210,12 @@ MIT License - see [LICENSE](LICENSE) file
 New code contributions, follow this process:
 
 1. **Fork**: Fork the repo on GitHub (using the webpage UI).
-2. **Clone**: Clone the forked project (`git clone https://github.com/yourname/kratos-zap.git`).
-3. **Navigate**: Navigate to the cloned project (`cd kratos-zap`)
+2. **Clone**: Clone the forked project (`git clone https://github.com/yourname/repo-name.git`).
+3. **Navigate**: Navigate to the cloned project (`cd repo-name`)
 4. **Branch**: Create a feature branch (`git checkout -b feature/xxx`).
 5. **Code**: Implement the changes with comprehensive tests
 6. **Testing**: (Golang project) Ensure tests pass (`go test ./...`) and follow Go code style conventions
-7. **Documentation**: Update documentation to support client-facing changes and use significant commit messages
+7. **Documentation**: Update documentation to support client-facing changes
 8. **Stage**: Stage changes (`git add .`)
 9. **Commit**: Commit changes (`git commit -m "Add feature xxx"`) ensuring backward compatible code
 10. **Push**: Push to the branch (`git push origin feature/xxx`).
@@ -246,10 +238,4 @@ Welcome to contribute to this project via submitting merge requests and reportin
 
 **Have Fun Coding with this package!** 🎉🎉🎉
 
-<!-- TEMPLATE (EN) END: STANDARD PROJECT FOOTER -->
-
----
-
-## GitHub Stars
-
-[![Stargazers](https://starchart.cc/yylego/kratos-zap.svg?variant=adaptive)](https://starchart.cc/yylego/kratos-zap)
+<!-- TEMPLATE (EN) CLOSE: STANDARD PROJECT FOOTER -->
