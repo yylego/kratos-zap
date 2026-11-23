@@ -86,9 +86,22 @@ func (A *ZapKratos) Zap() *zaplog.Zap {
 // 只取文件名，所以用 go build -trimpath 编译时也能正常工作
 // 返回附加了模块上下文的新 Zap 实例
 func (A *ZapKratos) SubZap() *zaplog.Zap {
-	_, path, _, ok := runtime.Caller(1)
+	return A.SubZapSkip(1)
+}
+
+// SubZapSkip creates child Zap with module information, skipping wrapping frames
+// skip counts the wrapping frames between the business calling site and this method
+// Pass 0 at the direct calling site, and 1 inside a single wrapping function
+// Takes the file name alone, so it works with go build -trimpath too
+//
+// SubZapSkip 创建跳过包装层后的业务模块子 Zap 日志器
+// skip 是业务调用点与此方法之间的包装层帧数
+// 0 表示直接调用者，一层包装函数内部传 1
+// 只取文件名，所以用 go build -trimpath 编译时也能正常工作
+func (A *ZapKratos) SubZapSkip(skip int) *zaplog.Zap {
+	_, path, _, ok := runtime.Caller(1 + skip)
 	if !ok {
-		panic(errors.New("runtime.Caller(1) fails in SubZap"))
+		panic(errors.Errorf("runtime.Caller(%d) fails in SubZapSkip", 1+skip))
 	}
 	return A.Zap().NewZap(A.options.ModuleKeyName, filepath.Base(path))
 }

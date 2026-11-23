@@ -115,6 +115,18 @@ func (A *ZapKratos) SubZap() *zaplog.Zap
 创建带有调用模块信息的子 Zap。
 
 ```go
+func (A *ZapKratos) SubZapSkip(skip int) *zaplog.Zap
+```
+
+跳过包装层帧，用业务代码的文件名创建子 Zap。传 `SubZapSkip(0)` 记录直接调用处的文件；在一层包装函数内传 `SubZapSkip(1)`，记录调用这个包装函数的文件。`SubZap()` 照旧记录直接调用处的文件，两种方法均支持 `go build -trimpath`。
+
+```go
+func moduleZap(zk *zapkratos.ZapKratos) *zaplog.Zap {
+    return zk.SubZapSkip(1)
+}
+```
+
+```go
 func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger
 ```
 

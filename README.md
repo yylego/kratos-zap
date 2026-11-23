@@ -115,6 +115,18 @@ func (A *ZapKratos) SubZap() *zaplog.Zap
 Creates child Zap with calling module info.
 
 ```go
+func (A *ZapKratos) SubZapSkip(skip int) *zaplog.Zap
+```
+
+Creates child Zap with the business file name, skipping wrapping frames. Pass `SubZapSkip(0)` to record the direct calling file, and `SubZapSkip(1)` inside a single wrapping function to record the file that calls it. `SubZap()` keeps recording the direct calling file. Both methods work with `go build -trimpath`.
+
+```go
+func moduleZap(zk *zapkratos.ZapKratos) *zaplog.Zap {
+    return zk.SubZapSkip(1)
+}
+```
+
+```go
 func (A *ZapKratos) NewLogger(msgCaption string) *slog.Logger
 ```
 

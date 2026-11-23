@@ -52,3 +52,19 @@ func TestZapKratos_SubZap(t *testing.T) {
 		require.Equal(t, map[string]any{"module": "zapkratos_test.go"}, item.ContextMap())
 	}
 }
+
+// TestZapKratos_SubZapSkip checks direct and wrapped calls both point to the business file
+// TestZapKratos_SubZapSkip 检查直接调用及包装调用都定位到业务文件
+func TestZapKratos_SubZapSkip(t *testing.T) {
+	core, logs := observer.New(zapcore.DebugLevel)
+	zapKratos := NewZapKratos(zaplog.NewZap(zap.New(core)), NewOptions())
+
+	zapKratos.SubZapSkip(0).LOG.Info("direct")
+	subZapWrapped(zapKratos).LOG.Info("wrapped")
+
+	entries := logs.TakeAll()
+	require.Len(t, entries, 2)
+	for _, item := range entries {
+		require.Equal(t, map[string]any{"module": "zapkratos_test.go"}, item.ContextMap())
+	}
+}

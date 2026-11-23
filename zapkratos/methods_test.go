@@ -23,3 +23,11 @@ func TestZapKratos_NewLogger(t *testing.T) {
 	require.Equal(t, "abc", entries[0].Message)
 	require.Equal(t, map[string]any{"caption": "app", "stage": "demo"}, entries[0].ContextMap())
 }
+
+// subZapWrapped wraps SubZapSkip(1) to serve TestZapKratos_SubZapSkip
+// It sits outside zapkratos_test.go so an incorrect skip yields a different module
+// subZapWrapped 是 TestZapKratos_SubZapSkip 用的包装函数
+// 它不放在 zapkratos_test.go 里，跳帧数写错时得到的模块名就会不同
+func subZapWrapped(zapKratos *ZapKratos) *zaplog.Zap {
+	return zapKratos.SubZapSkip(1)
+}
